@@ -1,0 +1,61 @@
+In MCP, both tools and resources can be used to expose information to clients, but they are designed for different scenarios.
+
+
+
+
+
+Tools are model-controlled, which means AI agents and clients can invoke them directly and autonomously. 
+Tools can accept parameters, perform logic, and return results dynamically. 
+This makes them ideal for retrieving data that may change over time, needs to be filtered, 
+or requires real-time access. For example, 
+fetching shopping list items—especially when you want to filter by purchased status or always get the most current data—is best implemented as a tool. 
+This allows agents to request exactly the data they need, when they need it, as part of a conversation or workflow.
+
+
+Resources are application-controlled and are typically used to provide static or pre-defined data, 
+such as documentation or reference material. The client application decides when and how to use resources, 
+and agents cannot invoke them directly in the same way as tools. This makes resources less suitable for dynamic data retrieval or actions that require parameters.
+
+
+
+For the shopping list service, exposing data-fetching as a tool ensures that agents can always retrieve the latest information, apply filters, 
+and interact with the service in a flexible, real-time manner. 
+This is why we use a tool—not a resource—to return shopping list data.
+
+
+
+
+
+Great question! Here’s how to decide which file to run, especially as projects grow:
+If you’re using stdio (or similar client-server setups):
+You usually run the client file (like connection.py), which launches the server as a subprocess.
+The server file (like mcp_server.py) is started automatically by the client.
+If you’re testing or developing the server itself:
+Run the server file directly (e.g., python3 mcp_server.py) to check for errors or debug server logic.
+In bigger projects:
+There’s often a main.py, app.py, or a README that tells you what to run.
+Look for files with an if __name__ == "__main__": block—these are meant to be run directly.
+For client-server projects, run the client entry point unless you’re specifically debugging the server.
+
+
+
+Great point! If you want a user-friendly experience, you’d build a UI (like a web or desktop app) that acts as the client.
+The UI would let users click buttons or fill forms (e.g., “Add Item”).
+Under the hood, the UI code would call the same MCP tools (just like your connection.py does).
+The user never sees or writes code—they just interact with the interface.
+So, the UI replaces the manual Python client, but still communicates with the server in the same way. 
+The logic for calling tools moves into the UI’s backend or event handlers.
+
+
+
+
+
+
+
+
+The MCP server runs in its own file (e.g., mcp_server.py) and exposes tools using decorators like @mcp.tool().
+To connect an agent to the MCP server, you use a client script (e.g., agent_client.py) that creates a connection object with MCPServerStdio or MCPServerSse.
+The line async with MCPServerStdio(params=server_params) as mcp_server: creates a connection object (mcp_server), which is just a variable holding the active connection.
+You pass this connection object to the agent using mcp_servers=[mcp_server], allowing the agent to discover and use all available tools automatically.
+You can have multiple connections (e.g., server_connection_1, server_connection_2) by creating multiple connection objects and passing them in the list.
+The agent handles tool discovery and usage; you don’t need to manually call or list tools in the integration script.
